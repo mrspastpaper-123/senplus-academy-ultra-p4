@@ -131,11 +131,38 @@ button,.account button,.back-button,.submit-answer,.next-question,.quality-edit-
   .quality-editor-actions{bottom:calc(-19px + env(safe-area-inset-bottom));padding-bottom:calc(13px + env(safe-area-inset-bottom))}
 }
 
-/* P4 theme: sky blue, navy and warm yellow */
-:root{--ink:#17324d;--muted:#5f7182;--cream:#f5f8fb;--teal:#287e9b;--line:#d7e3eb}
-.login-intro{background:linear-gradient(145deg,#dceff8 0%,#f5f8fb 60%,#fff0c9 100%)}
-.dashboard-page{background:#f4f8fb}
-.brand-mark{background:linear-gradient(145deg,#23577a,#2f91ad)}
-.practice-progress span,.performance-track span{background:linear-gradient(90deg,#2f91ad,#f0b83f)}
-.reading-paper-intro{background:linear-gradient(120deg,#173f63,#2d89a6)}
-.subject-card,.unit-card,.question-card{box-shadow:0 10px 35px rgba(35,87,122,.07)}
+/* P4 theme: refined purple and lavender */
+:root{--ink:#35264b;--muted:#766b82;--cream:#faf7fc;--teal:#7656a8;--line:#e4d9ee}
+.login-intro{background:linear-gradient(145deg,#e8dcf5 0%,#faf7fc 60%,#f3eafb 100%)}
+.login-intro:after{border-color:rgba(255,255,255,.42)}
+.login-panel{background:#fffefe}
+.dashboard-page{background:#f8f5fb}
+.brand-mark{background:linear-gradient(145deg,#5c3d88,#9472c4);box-shadow:0 12px 30px rgba(91,61,136,.24)}
+.auth-tabs{background:#f0e9f6}
+.auth-tabs button.active{box-shadow:0 3px 12px rgba(74,51,105,.12)}
+.role-choice label.selected{background:#f5effa}
+.login-card input:focus,.login-card select:focus{box-shadow:0 0 0 4px rgba(118,86,168,.12)}
+.dashboard-page .account button,.parent-heading>button{background:#f0e9f6}
+.subject-button:hover,.unit-card:hover{border-color:#bca7d4;box-shadow:0 16px 40px rgba(92,63,136,.12)}
+.subject-button:focus-visible,.unit-card:focus-visible,.back-button:focus-visible{outline-color:rgba(118,86,168,.3)}
+.unit-card.enabled{border-color:#b49bce;box-shadow:0 12px 32px rgba(91,61,136,.11)}
+.practice-progress span,.performance-track span{background:linear-gradient(90deg,#7656a8,#b99bd5)}
+.reading-paper-intro{background:linear-gradient(120deg,#432c68,#7d5aa7)}
+.reading-instructions{border-color:#d5c3e5;background:#f7f1fb;color:#49375f}
+.reading-question-group-title>strong{background:#efe6f6}
+.reading-submit-bar{border-color:#dacbe7;box-shadow:0 14px 38px rgba(74,47,105,.14)}
+.subject-card,.unit-card,.question-card,.reading-passage,.reading-question{box-shadow:0 10px 35px rgba(70,45,101,.07)}
+.progress-card{background:linear-gradient(120deg,#39264f,#624587)}
+.completion-card:before{background:linear-gradient(90deg,#654494,#9d79c3,#d2b9e6)}
+.completion-icon{background:linear-gradient(145deg,#f4edf9,#e8dcf3)}
+.result-summary div,.focus-list>div{background:#f5eff9}
+.admin-hero,.student-detail-hero,.error-analysis-hero,.parent-child-hero{background:linear-gradient(120deg,#3d2858,#68468f 68%,#9a76bd 145%)}
+.writing-score{background:linear-gradient(135deg,#4b316c,#8060a8)}
+.writing-rubric div{background:#f5eff9}
+.writing-rubric strong{color:#684793}
+.writing-result .retry-button{background:#7656a8}
+.parent-link-panel{border-color:#dfd3e9;background:linear-gradient(135deg,#fff,#f5eff9);box-shadow:0 10px 30px rgba(70,45,101,.05)}
+.parent-link-icon,.student-code-row{background:#efe6f6}
+.child-tabs button.active{background:#f2eafa}
+.student-family-panel{border-color:#e1d7e9;box-shadow:0 8px 25px rgba(70,45,101,.045)}
+.family-link-message{background:#f0e9f6}
