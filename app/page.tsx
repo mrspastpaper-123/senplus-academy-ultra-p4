@@ -1008,7 +1008,7 @@ export default function Home() {
       <section className="login-intro">
         <div className="brand-mark">S+</div><p className="eyebrow">SENPlus+ Academy Ultra</p>
         <h1>每一步，都是<br />成長的亮光。</h1>
-        <p className="intro-copy">為香港小五學生而設的個人化學習空間，以清晰步驟建立信心，讓練習變得自在而有方向。</p>
+        <p className="intro-copy">為香港小四學生而設的個人化學習空間，以清晰步驟建立信心，讓練習變得自在而有方向。</p>
         <div className="subject-dots" aria-label="五個科目">{subjects.map((subject) => <span key={subject.name}>{subject.name}</span>)}</div>
       </section>
       <section className="login-panel"><div className="login-card">
