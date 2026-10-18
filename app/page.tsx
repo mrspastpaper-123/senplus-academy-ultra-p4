@@ -105,15 +105,29 @@ function renderMarkedText(value: string) {
 
 function getQuestionBarChartData(text: string, unitCode: string) {
   if (!/^[1-6]D/.test(unitCode) || !/棒形圖/.test(text)) return null;
+  const palette = ["#5688ce", "#d59a38", "#8a68bd", "#49a47a"];
   const scaleMatch = text.match(/每(?:一)?格(?:代表|表示)\s*(\d+(?:\.\d+)?)\s*(人|本|個|件|枝|支|隻|名|位|票|元|公斤|千克)?/);
   const barMatch = text.match(/([紅红藍蓝綠绿黃黄紫橙]隊)的?棒高\s*(\d+)\s*格/);
-  if (!scaleMatch || !barMatch) return null;
-  const scale = Number(scaleMatch[1]);
-  const squares = Number(barMatch[2]);
-  if (!Number.isFinite(scale) || scale <= 0 || scale > 1000 || squares < 0 || squares > 10) return null;
-  const label = barMatch[1];
-  const colour = /紅|红/.test(label) ? "#d85d64" : /藍|蓝/.test(label) ? "#5688ce" : /綠|绿/.test(label) ? "#49a47a" : /黃|黄/.test(label) ? "#d1a22d" : /紫/.test(label) ? "#8a68bd" : "#df9241";
-  return { scale, squares, label, colour, unit: scaleMatch[2] || "", maxSquares: Math.max(5, squares + 1) };
+  if (scaleMatch && barMatch) {
+    const scale = Number(scaleMatch[1]);
+    const squares = Number(barMatch[2]);
+    if (!Number.isFinite(scale) || scale <= 0 || scale > 1000 || squares < 0 || squares > 10) return null;
+    const label = barMatch[1];
+    const colour = /紅|红/.test(label) ? "#d85d64" : /藍|蓝/.test(label) ? "#5688ce" : /綠|绿/.test(label) ? "#49a47a" : /黃|黄/.test(label) ? "#d1a22d" : /紫/.test(label) ? "#8a68bd" : "#df9241";
+    return { scale, unit: scaleMatch[2] || "", maxSquares: Math.max(5, squares + 1), bars: [{ label, value: scale * squares, colour }] };
+  }
+  if (unitCode !== "4D1") return null;
+  const sports = text.match(/足球(\d+)人、籃球(\d+)人、羽毛球(\d+)人、游泳(\d+)人/);
+  const books = text.match(/甲組有(\d+)本書，乙組有(\d+)本書/);
+  const recycling = text.match(/一月至三月的回收量分別是(\d+)\s*kg、(\d+)\s*kg和(\d+)\s*kg/i);
+  const match = sports || books || recycling;
+  if (!match) return null;
+  const labels = sports ? ["足球", "籃球", "羽毛球", "游泳"] : books ? ["甲組", "乙組"] : ["一月", "二月", "三月"];
+  const values = match.slice(1).map(Number);
+  if (values.some((value) => !Number.isFinite(value) || value < 0 || value > 1000)) return null;
+  const highest = Math.max(...values);
+  const scale = highest <= 10 ? 2 : highest <= 30 ? 5 : Math.ceil(highest / 5);
+  return { scale, unit: sports ? "人" : books ? "本" : "kg", maxSquares: Math.max(1, Math.ceil(highest / scale)), bars: labels.map((label, i) => ({ label, value: values[i], colour: palette[i] })) };
 }
 
 function QuestionBarChart({ text, unitCode }: { text: string; unitCode: string }) {
@@ -123,9 +137,11 @@ function QuestionBarChart({ text, unitCode }: { text: string; unitCode: string }
   const bottom = 154;
   const plotHeight = bottom - top;
   const step = plotHeight / chart.maxSquares;
-  return <figure className="question-bar-chart" aria-label={`題目資料圖：${chart.label}的棒高${chart.squares}格，每格代表${chart.scale}${chart.unit}`}>
-    <figcaption>題目資料圖<span>每格代表 {chart.scale} {chart.unit}</span></figcaption>
-    <svg viewBox="0 0 260 184" role="img" aria-label={`${chart.label}棒形圖`}>
+  const bandWidth = 198 / chart.bars.length;
+  const barWidth = Math.min(60, bandWidth * .58);
+  return <figure className="question-bar-chart" aria-label="按本題數據繪製的棒形圖">
+    <figcaption>題目棒形圖<span>每格代表 {chart.scale} {chart.unit}</span></figcaption>
+    <svg viewBox="0 0 260 184" role="img" aria-label={`棒形圖：${chart.bars.map((bar) => bar.label).join("、")}；縱軸單位：${chart.unit}`}>
       <text x="10" y="12" className="question-chart-unit">{chart.unit ? `數量（${chart.unit}）` : "數量"}</text>
       {Array.from({ length: chart.maxSquares + 1 }, (_, i) => {
         const y = bottom - i * step;
@@ -133,9 +149,15 @@ function QuestionBarChart({ text, unitCode }: { text: string; unitCode: string }
       })}
       <line x1="44" x2="44" y1={top} y2={bottom} stroke="#67738b" strokeWidth="1.5" />
       <line x1="44" x2="242" y1={bottom} y2={bottom} stroke="#67738b" strokeWidth="1.5" />
-      <rect x="109" y={bottom - chart.squares * step} width="66" height={chart.squares * step} fill={chart.colour} rx="3" />
-      {Array.from({ length: Math.max(0, chart.squares - 1) }, (_, i) => <line key={i} x1="109" x2="175" y1={bottom - (i + 1) * step} y2={bottom - (i + 1) * step} stroke="#fff" strokeOpacity=".6" />)}
-      <text x="142" y="175" textAnchor="middle">{chart.label}</text>
+      {chart.bars.map((bar, index) => {
+        const x = 44 + bandWidth * (index + .5);
+        const height = bar.value / chart.scale * step;
+        return <g key={bar.label}>
+          <rect x={x - barWidth / 2} y={bottom - height} width={barWidth} height={height} fill={bar.colour} rx="3" />
+          {Array.from({ length: Math.max(0, Math.ceil(bar.value / chart.scale) - 1) }, (_, i) => <line key={i} x1={x - barWidth / 2} x2={x + barWidth / 2} y1={bottom - (i + 1) * step} y2={bottom - (i + 1) * step} stroke="#fff" strokeOpacity=".6" />)}
+          <text x={x} y="175" textAnchor="middle">{bar.label}</text>
+        </g>;
+      })}
     </svg>
   </figure>;
 }
