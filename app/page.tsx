@@ -1912,8 +1912,6 @@ export default function Home() {
 
   if (view === "humanities") {
     const humanitiesByCode = new Map(humanitiesUnits.map(unit => [unit.code, unit]));
-    const coreCodes = new Set<string>(humanitiesTopics.map(([code]) => code));
-    const supplementaryUnits = humanitiesUnits.filter(unit => !coreCodes.has(unit.code));
     const renderHumanitiesCard = (unit: MathsUnit, title = unit.title_zh) => (
       <button className="unit-card humanities-unit-card enabled" key={title} type="button"
         onClick={() => startUnit(unit, "humanities")}>
@@ -1936,10 +1934,6 @@ export default function Home() {
           return unit ? renderHumanitiesCard(unit, title) : null;
         })}
       </div>}
-      {!humanitiesUnitsLoading && !humanitiesUnitsMessage && supplementaryUnits.length > 0 && <section className="mt-8" aria-labelledby="humanities-supplementary-heading">
-        <h2 id="humanities-supplementary-heading" className="mb-4 text-xl font-bold">延伸練習</h2>
-        <div className="unit-grid">{supplementaryUnits.map(unit => renderHumanitiesCard(unit))}</div>
-      </section>}
       {!humanitiesUnitsLoading && !humanitiesUnitsMessage && humanitiesUnits.length === 0 && <div className="unit-status">目前尚未建立人文科單元。</div>}
     </section>
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
@@ -1948,9 +1942,6 @@ export default function Home() {
 
   if (view === "science") {
     const scienceByCode = new Map(scienceUnits.map(unit => [unit.code, unit]));
-    const coreCodes = new Set<string>(scienceTopics.map(([code]) => code));
-    const supplementaryUnits = scienceUnits.filter(unit => !coreCodes.has(unit.code))
-      .sort((a, b) => Number(a.code.slice(3)) - Number(b.code.slice(3)));
     const renderScienceCard = (unit: MathsUnit, title = unit.title_zh) => (
       <button className="unit-card science-unit-card enabled" key={unit.id} type="button"
         onClick={() => startUnit({ ...unit, title_zh: title }, "science")}>
@@ -1973,10 +1964,6 @@ export default function Home() {
           return unit ? renderScienceCard(unit, title) : null;
         })}
       </div>}
-      {!scienceUnitsLoading && !scienceUnitsMessage && supplementaryUnits.length > 0 && <section className="mt-8" aria-labelledby="science-supplementary-heading">
-        <h2 id="science-supplementary-heading" className="mb-4 text-xl font-bold">延伸練習</h2>
-        <div className="unit-grid">{supplementaryUnits.map(unit => renderScienceCard(unit))}</div>
-      </section>}
       {!scienceUnitsLoading && !scienceUnitsMessage && scienceUnits.length === 0 && <div className="unit-status">目前尚未建立科學科單元。</div>}
     </section>
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
