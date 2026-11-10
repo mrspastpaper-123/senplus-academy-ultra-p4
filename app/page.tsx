@@ -15,29 +15,37 @@ const generalStudiesBooks: ReadonlyArray<{
 }> = [
   { code: "4.1", title: "奇妙的世界", units: [
     { title: "地球是我家", lessons: [{ title: "發現地球", practiceCode: "4SC1" }, { title: "多變的地球", practiceCode: "4HS2" }] },
-    { title: "世界文化之窗", lessons: [{ title: "中國傳統文化", practiceCode: "4HS3" }, { title: "世界各地文化", practiceCode: "4HS3" }] },
+    { title: "世界文化之窗", lessons: [{ title: "中國傳統文化", practiceCode: "4GS3" }, { title: "世界各地文化", practiceCode: "4GS3" }] },
   ] },
   { code: "4.2", title: "大地寶庫", units: [
     { title: "水的世界", lessons: [{ title: "水的探究", practiceCode: "4SC10" }, { title: "潔淨的水", practiceCode: "4SC11" }] },
     { title: "奇妙的空氣", lessons: [{ title: "空氣的探究", practiceCode: "4SC12" }, { title: "空氣與生命", practiceCode: "4SC13" }] },
   ] },
   { code: "4.3", title: "資訊新世代", units: [
-    { title: "資訊素養", lessons: [{ title: "資訊科技的應用", practiceCode: "4HS8" }, { title: "資訊科技與溝通", practiceCode: "4HS8" }] },
-    { title: "明智的選擇", lessons: [{ title: "認清傳媒", practiceCode: "4HS8" }, { title: "廣告的魔力", practiceCode: "4HS8" }] },
+    { title: "資訊素養", lessons: [{ title: "資訊科技的應用", practiceCode: "4GS8" }, { title: "資訊科技與溝通", practiceCode: "4GS8" }] },
+    { title: "明智的選擇", lessons: [{ title: "認清傳媒", practiceCode: "4GS8" }, { title: "廣告的魔力", practiceCode: "4GS8" }] },
   ] },
   { code: "4.4", title: "健康的身體", units: [
     { title: "精明飲食", lessons: [{ title: "有「營」食物", practiceCode: "4HS4" }, { title: "飲食陷阱", practiceCode: "4HS4" }] },
     { title: "預防勝於治療", lessons: [{ title: "防治傳染病", practiceCode: "4SC7" }, { title: "現代都市病", practiceCode: "4SC7" }] },
   ] },
   { code: "4.5", title: "環境與氣候", units: [
-    { title: "香港的環境", lessons: [{ title: "小小考察隊", practiceCode: "4SC4" }, { title: "漫遊香港", practiceCode: "4HS1" }] },
-    { title: "氣象小百科", lessons: [{ title: "天氣變變變", practiceCode: "4HS1" }, { title: "香港的氣候", practiceCode: "4HS1" }] },
+    { title: "香港的環境", lessons: [{ title: "小小考察隊", practiceCode: "4GS4" }, { title: "漫遊香港", practiceCode: "4GS1" }] },
+    { title: "氣象小百科", lessons: [{ title: "天氣變變變", practiceCode: "4GS1" }, { title: "香港的氣候", practiceCode: "4GS1" }] },
   ] },
   { code: "4.6", title: "香港歷史", units: [
-    { title: "香港故事之旅", lessons: [{ title: "古時的香港", practiceCode: "4HS6" }, { title: "香港開埠後", practiceCode: "4HS6" }] },
-    { title: "香港社會的變遷", lessons: [{ title: "戰後的香港", practiceCode: "4HS6" }, { title: "今日香港社會", practiceCode: "4HS6" }] },
+    { title: "香港故事之旅", lessons: [{ title: "古時的香港", practiceCode: "4GS6" }, { title: "香港開埠後", practiceCode: "4GS6" }] },
+    { title: "香港社會的變遷", lessons: [{ title: "戰後的香港", practiceCode: "4GS6" }, { title: "今日香港社會", practiceCode: "4GS6" }] },
   ] },
 ];
+
+const specialistLessons: Partial<Record<string, string>> = {
+  "4HS1": "漫遊香港",
+  "4HS3": "中國傳統文化、世界各地文化",
+  "4HS6": "古時的香港、香港開埠後、戰後的香港、今日香港社會",
+  "4HS8": "資訊科技的應用、資訊科技與溝通、認清傳媒、廣告的魔力",
+  "4SC4": "小小考察隊",
+};
 
 const subjects = [
   { name: "中文", note: "閱讀、語文與寫作", icon: BookOpen, colour: "coral" },
@@ -299,6 +307,9 @@ export default function Home() {
   const [scienceUnits, setScienceUnits] = useState<MathsUnit[]>([]);
   const [scienceUnitsLoading, setScienceUnitsLoading] = useState(false);
   const [scienceUnitsMessage, setScienceUnitsMessage] = useState("");
+  const [generalStudiesBanks, setGeneralStudiesBanks] = useState<MathsUnit[]>([]);
+  const [generalStudiesBanksLoading, setGeneralStudiesBanksLoading] = useState(false);
+  const [generalStudiesBanksMessage, setGeneralStudiesBanksMessage] = useState("");
   const [mathsUnits, setMathsUnits] = useState<MathsUnit[]>([]);
   const [unitsLoading, setUnitsLoading] = useState(false);
   const [unitsMessage, setUnitsMessage] = useState("");
@@ -591,6 +602,7 @@ export default function Home() {
 
     const subjectCompleted: Record<string, number> = {};
     const subjectForCode = (code: string) => {
+      if (/^4GS/i.test(code)) return "常識科";
       if (/^4SC/i.test(code)) return "科學";
       if (/^4(?:CL|CR|CW)/i.test(code)) return "中文";
       if (/^4E/i.test(code)) return "英文";
@@ -1204,9 +1216,39 @@ export default function Home() {
     setPracticeLoading(false);
   }
 
-  function openGeneralStudies() {
+  async function openGeneralStudies() {
     void openHumanities("generalStudies");
     void openScience("generalStudies");
+    if (generalStudiesBanks.length || generalStudiesBanksLoading) return;
+    setGeneralStudiesBanksLoading(true);
+    setGeneralStudiesBanksMessage("");
+    const { data: subject, error: subjectError } = await supabase.from("curriculum_subjects")
+      .select("id").eq("grade", "P4").eq("code", "general_studies").single();
+    if (subjectError || !subject) {
+      setGeneralStudiesBanksMessage("未能讀取P4常識科題庫，請稍後再試。");
+      setGeneralStudiesBanksLoading(false);
+      return;
+    }
+    const { data: domains, error: domainsError } = await supabase.from("curriculum_domains")
+      .select("id, name_zh, code").eq("subject_id", subject.id);
+    if (domainsError || !domains?.length) {
+      setGeneralStudiesBanksMessage("未能讀取P4常識科範疇，請稍後再試。");
+      setGeneralStudiesBanksLoading(false);
+      return;
+    }
+    const { data, error } = await supabase.from("curriculum_nodes")
+      .select("id, domain_id, code, title_zh, title_en, difficulty")
+      .in("domain_id", domains.map(domain => domain.id)).eq("is_active", true);
+    if (error) {
+      setGeneralStudiesBanksMessage("未能載入P4常識科題庫，請稍後再試。");
+    } else {
+      const domainMap = new Map(domains.map(domain => [domain.id, { title_zh: domain.name_zh, code: domain.code }]));
+      setGeneralStudiesBanks((data || []).map(unit => ({
+        ...unit,
+        curriculum_domains: domainMap.get(unit.domain_id) || null,
+      })) as MathsUnit[]);
+    }
+    setGeneralStudiesBanksLoading(false);
   }
 
   async function startUnit(unit: MathsUnit, subject: "maths" | "chinese" | "english" | "humanities" | "science" = activeSubject, returnView: AppView = subject) {
@@ -1426,8 +1468,8 @@ export default function Home() {
   if (view === "progress" && profile?.role === "student" && profile.login_allowed) return (
     <StudentLearningProgress key={session.user.id} client={supabase} studentId={session.user.id}
       grade={profile.grade || "P4"} displayName={profile.display_name || "同學"}
-      subjects={subjects.map(subject => subject.name)} onBack={() => { setView("subjects"); window.scrollTo({ top: 0 }); }}
-      onSignOut={() => void signOut()} onPractice={index => { window.scrollTo({ top: 0 }); void [openChinese, openEnglish, openMaths, openHumanities, openScience][index]?.(); }} />
+      subjects={[...subjects.map(subject => subject.name), "常識科"]} onBack={() => { setView("subjects"); window.scrollTo({ top: 0 }); }}
+      onSignOut={() => void signOut()} onPractice={index => { window.scrollTo({ top: 0 }); void [openChinese, openEnglish, openMaths, openHumanities, openScience, openGeneralStudies][index]?.(); }} />
   );
 
   if (view === "parent" && profile?.role === "parent") {
@@ -1809,9 +1851,9 @@ export default function Home() {
   </main>;
 
   if (view === "generalStudies") {
-    const generalStudiesUnitsLoading = humanitiesUnitsLoading || scienceUnitsLoading;
-    const generalStudiesUnitsMessage = humanitiesUnitsMessage || scienceUnitsMessage;
-    const units = [...humanitiesUnits, ...scienceUnits];
+    const generalStudiesUnitsLoading = humanitiesUnitsLoading || scienceUnitsLoading || generalStudiesBanksLoading;
+    const generalStudiesUnitsMessage = humanitiesUnitsMessage || scienceUnitsMessage || generalStudiesBanksMessage;
+    const units = [...humanitiesUnits, ...scienceUnits, ...generalStudiesBanks];
     const practicesByCode = new Map(units.map(unit => [unit.code, unit]));
     return <main className="dashboard-page learning-flow-v2 subject-generalStudies"><TwinkoGuide view={view} answerCorrect={feedback?.is_correct ?? null} />
     <header className="topbar"><div className="brand"><div className="brand-mark small">S+</div><div><strong>SENPlus+</strong><span>Academy Ultra · P4</span></div></div><div className="account"><span>{profile?.display_name || session.user.email}</span><button onClick={signOut}><LogOut size={17} />登出</button></div></header>
@@ -1827,7 +1869,7 @@ export default function Home() {
               {group.lessons.map(lesson => {
                 const practice = lesson.practiceCode ? practicesByCode.get(lesson.practiceCode) : undefined;
                 const action = practice ? "開始練習" : generalStudiesUnitsLoading && lesson.practiceCode ? "正在載入練習…" : "暫未有相關練習";
-                return <button className={`unit-card general-studies-unit-card ${practice ? "enabled" : ""}`} key={lesson.title} type="button" disabled={!practice} onClick={() => practice && startUnit(practice, scienceUnits.includes(practice) ? "science" : "humanities", "generalStudies")}>
+                return <button className={`unit-card general-studies-unit-card ${practice ? "enabled" : ""}`} key={lesson.title} type="button" disabled={!practice} onClick={() => practice && startUnit(practice, (scienceUnits.includes(practice) || practice.code === "4GS4") ? "science" : "humanities", "generalStudies")}>
                   {lesson.practiceCode && <span className="unit-code">{lesson.practiceCode}</span>}
                   <h2>{lesson.title}</h2>
                   {practice && <p>{practice.title_zh}</p>}
@@ -1853,7 +1895,7 @@ export default function Home() {
       <div className="units-heading"><div className="subject-icon amber"><Sparkles size={25} /></div><div><p className="eyebrow">P4 人文科</p><h1>選擇學習單元</h1><p>每次隨機完成10題，系統會即時批改、提供解析並記錄錯題。</p></div></div>
       {humanitiesUnitsLoading && <div className="unit-status">正在載入8個人文科單元…</div>}
       {humanitiesUnitsMessage && <div className="unit-status error-message">{humanitiesUnitsMessage}</div>}
-      {!humanitiesUnitsLoading && !humanitiesUnitsMessage && <div className="unit-grid">{humanitiesUnits.map((unit) => <button className="unit-card humanities-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "humanities")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "人文科"}</span><span>開始練習</span></div></button>)}</div>}
+      {!humanitiesUnitsLoading && !humanitiesUnitsMessage && <div className="unit-grid">{humanitiesUnits.map((unit) => <button className="unit-card humanities-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "humanities")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{specialistLessons[unit.code] || unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "人文科"}</span><span>開始練習</span></div></button>)}</div>}
       {!humanitiesUnitsLoading && !humanitiesUnitsMessage && humanitiesUnits.length === 0 && <div className="unit-status">目前尚未建立人文科單元。</div>}
     </section>
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
@@ -1864,9 +1906,9 @@ export default function Home() {
     <section className="dashboard-wrap units-wrap science-units">
       <button className="back-button" onClick={() => setView("subjects")}><ArrowLeft size={18} />返回科目</button>
       <div className="units-heading"><div className="subject-icon green"><Microscope size={25} /></div><div><p className="eyebrow">P4 科學科</p><h1>選擇學習單元</h1><p>每次隨機完成10題，系統會即時批改、提供科學解析並記錄錯題。</p></div></div>
-      {scienceUnitsLoading && <div className="unit-status">正在載入9個科學科單元…</div>}
+      {scienceUnitsLoading && <div className="unit-status">正在載入科學科單元…</div>}
       {scienceUnitsMessage && <div className="unit-status error-message">{scienceUnitsMessage}</div>}
-      {!scienceUnitsLoading && !scienceUnitsMessage && <div className="unit-grid">{scienceUnits.slice().sort((a, b) => Number(a.code.slice(3)) - Number(b.code.slice(3))).map((unit) => <button className="unit-card science-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "science")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "科學科"}</span><span>開始練習</span></div></button>)}</div>}
+      {!scienceUnitsLoading && !scienceUnitsMessage && <div className="unit-grid">{scienceUnits.slice().sort((a, b) => Number(a.code.slice(3)) - Number(b.code.slice(3))).map((unit) => <button className="unit-card science-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "science")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{specialistLessons[unit.code] || unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "科學科"}</span><span>開始練習</span></div></button>)}</div>}
       {!scienceUnitsLoading && !scienceUnitsMessage && scienceUnits.length === 0 && <div className="unit-status">目前尚未建立科學科單元。</div>}
     </section>
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
@@ -1877,6 +1919,7 @@ export default function Home() {
     if (studentHomeStats.lastSubject === "英文") return openEnglish();
     if (studentHomeStats.lastSubject === "人文科") return openHumanities();
     if (studentHomeStats.lastSubject === "科學") return openScience();
+    if (studentHomeStats.lastSubject === "常識科") return openGeneralStudies();
     return openMaths();
   };
   const todayGoalDone = studentHomeStats.todayCompleted > 0;

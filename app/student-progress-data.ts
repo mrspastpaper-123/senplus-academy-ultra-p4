@@ -27,7 +27,8 @@ export function summariseProgress(rows: ProgressAttempt[]) {
 export function progressSubjectIndex(code: string, subjectCount: number): number {
   if (/^\d+(?:CL|CR|CW)/i.test(code)) return 0;
   if (/^\d+E/i.test(code)) return 1;
-  if (/^\d+SC/i.test(code)) return subjectCount === 5 ? 4 : 3;
+  if (/^4GS/i.test(code) && subjectCount === 6) return 5;
+  if (/^\d+SC/i.test(code)) return subjectCount >= 5 ? 4 : 3;
   if (/^\d+(?:N|M|S|D|A)/i.test(code)) return 2;
   if (/^\d+(?:GS|H|PS|LS)/i.test(code)) return 3;
   return -1;
