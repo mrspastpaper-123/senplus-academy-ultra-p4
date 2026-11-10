@@ -63,10 +63,10 @@ const humanitiesTopics = [
   ["4HS8", "廣告的魔力"],
   ["4HS9", "小小考察隊"],
   ["4HS1", "漫遊香港"],
-  ["4HS6", "古時的香港"],
-  ["4HS6", "香港開埠後"],
-  ["4HS6", "戰後的香港"],
-  ["4HS6", "今日香港社會"],
+  ["4HS10", "古時的香港"],
+  ["4HS11", "香港開埠後"],
+  ["4HS12", "戰後的香港"],
+  ["4HS13", "今日香港社會"],
 ] as const;
 
 const subjects = [
@@ -1188,7 +1188,7 @@ export default function Home() {
       setHumanitiesUnitsMessage("未能載入人文科單元，請稍後再試。");
     } else {
       const domainMap = new Map(domains.map((domain) => [domain.id, { title_zh: domain.name_zh, code: domain.code }]));
-      setHumanitiesUnits((data || []).filter((unit) => /^4HS[1-9]$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
+      setHumanitiesUnits((data || []).filter((unit) => /^4HS(?:[1-9]|1[0-3])$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
     }
     setHumanitiesUnitsLoading(false);
   }
