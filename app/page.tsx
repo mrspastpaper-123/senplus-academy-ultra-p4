@@ -44,7 +44,6 @@ const specialistLessons: Partial<Record<string, string>> = {
   "4HS3": "中國傳統文化、世界各地文化",
   "4HS6": "古時的香港、香港開埠後、戰後的香港、今日香港社會",
   "4HS8": "資訊科技的應用、資訊科技與溝通、認清傳媒、廣告的魔力",
-  "4SC4": "小小考察隊",
 };
 
 const subjects = [
@@ -1166,7 +1165,7 @@ export default function Home() {
       setHumanitiesUnitsMessage("未能載入人文科單元，請稍後再試。");
     } else {
       const domainMap = new Map(domains.map((domain) => [domain.id, { title_zh: domain.name_zh, code: domain.code }]));
-      setHumanitiesUnits((data || []).filter((unit) => /^4HS(?:[1-8])$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
+      setHumanitiesUnits((data || []).filter((unit) => /^4HS[1-9]$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
     }
     setHumanitiesUnitsLoading(false);
   }
@@ -1869,7 +1868,7 @@ export default function Home() {
               {group.lessons.map(lesson => {
                 const practice = lesson.practiceCode ? practicesByCode.get(lesson.practiceCode) : undefined;
                 const action = practice ? "開始練習" : generalStudiesUnitsLoading && lesson.practiceCode ? "正在載入練習…" : "暫未有相關練習";
-                return <button className={`unit-card general-studies-unit-card ${practice ? "enabled" : ""}`} key={lesson.title} type="button" disabled={!practice} onClick={() => practice && startUnit(practice, (scienceUnits.includes(practice) || practice.code === "4GS4") ? "science" : "humanities", "generalStudies")}>
+                return <button className={`unit-card general-studies-unit-card ${practice ? "enabled" : ""}`} key={lesson.title} type="button" disabled={!practice} onClick={() => practice && startUnit(practice, scienceUnits.includes(practice) ? "science" : "humanities", "generalStudies")}>
                   {lesson.practiceCode && <span className="unit-code">{lesson.practiceCode}</span>}
                   <h2>{lesson.title}</h2>
                   {practice && <p>{practice.title_zh}</p>}
@@ -1893,7 +1892,7 @@ export default function Home() {
     <section className="dashboard-wrap units-wrap humanities-units">
       <button className="back-button" onClick={() => setView("subjects")}><ArrowLeft size={18} />返回科目</button>
       <div className="units-heading"><div className="subject-icon amber"><Sparkles size={25} /></div><div><p className="eyebrow">P4 人文科</p><h1>選擇學習單元</h1><p>每次隨機完成10題，系統會即時批改、提供解析並記錄錯題。</p></div></div>
-      {humanitiesUnitsLoading && <div className="unit-status">正在載入8個人文科單元…</div>}
+      {humanitiesUnitsLoading && <div className="unit-status">正在載入人文科單元…</div>}
       {humanitiesUnitsMessage && <div className="unit-status error-message">{humanitiesUnitsMessage}</div>}
       {!humanitiesUnitsLoading && !humanitiesUnitsMessage && <div className="unit-grid">{humanitiesUnits.map((unit) => <button className="unit-card humanities-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "humanities")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{specialistLessons[unit.code] || unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "人文科"}</span><span>開始練習</span></div></button>)}</div>}
       {!humanitiesUnitsLoading && !humanitiesUnitsMessage && humanitiesUnits.length === 0 && <div className="unit-status">目前尚未建立人文科單元。</div>}
