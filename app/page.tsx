@@ -39,6 +39,21 @@ const generalStudiesBooks: ReadonlyArray<{
   ] },
 ];
 
+const scienceTopics = [
+  ["4SC1","發現地球"],
+  ["4SC14","多變的地球"],
+  ["4SC10","水的探究"],
+  ["4SC11","潔淨的水"],
+  ["4SC12","空氣的探究"],
+  ["4SC13","空氣與生命"],
+  ["4SC15","有「營」食物"],
+  ["4SC16","飲食陷阱"],
+  ["4SC17","防治傳染病"],
+  ["4SC18","現代都市病"],
+  ["4SC19","天氣變變變"],
+  ["4SC20","香港的氣候"],
+] as const;
+
 const specialistLessons: Partial<Record<string, string>> = {
   "4HS1": "漫遊香港",
   "4HS3": "中國傳統文化、世界各地文化",
@@ -1183,7 +1198,7 @@ export default function Home() {
       setScienceUnitsMessage("未能載入科學科單元，請稍後再試。");
     } else {
       const domainMap = new Map(domains.map((domain) => [domain.id, { title_zh: domain.name_zh, code: domain.code }]));
-      setScienceUnits((data || []).filter((unit) => /^4SC(?:[1-9]|1[0-3])$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
+      setScienceUnits((data || []).filter((unit) => /^4SC(?:[1-9]|1\d|20)$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
     }
     setScienceUnitsLoading(false);
   }
@@ -1900,18 +1915,42 @@ export default function Home() {
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
   </main>;
 
-  if (view === "science") return <main className="dashboard-page learning-flow-v2 subject-science"><TwinkoGuide view={view} answerCorrect={feedback?.is_correct ?? null} />
+  if (view === "science") {
+    const scienceByCode = new Map(scienceUnits.map(unit => [unit.code, unit]));
+    const coreCodes = new Set<string>(scienceTopics.map(([code]) => code));
+    const supplementaryUnits = scienceUnits.filter(unit => !coreCodes.has(unit.code))
+      .sort((a, b) => Number(a.code.slice(3)) - Number(b.code.slice(3)));
+    const renderScienceCard = (unit: MathsUnit, title = unit.title_zh) => (
+      <button className="unit-card science-unit-card enabled" key={unit.id} type="button"
+        onClick={() => startUnit({ ...unit, title_zh: title }, "science")}>
+        <span className="unit-code">{unit.code}</span>
+        <h2>{title}</h2>
+        <p>{unit.title_en}</p>
+        <div><span>{unit.curriculum_domains?.title_zh || "科學科"}</span><span>開始練習</span></div>
+      </button>
+    );
+    return <main className="dashboard-page learning-flow-v2 subject-science"><TwinkoGuide view={view} answerCorrect={feedback?.is_correct ?? null} />
     <header className="topbar"><div className="brand"><div className="brand-mark small">S+</div><div><strong>SENPlus+</strong><span>Academy Ultra · P4</span></div></div><div className="account"><span>{profile?.display_name || session.user.email}</span><button onClick={signOut}><LogOut size={17} />登出</button></div></header>
     <section className="dashboard-wrap units-wrap science-units">
       <button className="back-button" onClick={() => setView("subjects")}><ArrowLeft size={18} />返回科目</button>
       <div className="units-heading"><div className="subject-icon green"><Microscope size={25} /></div><div><p className="eyebrow">P4 科學科</p><h1>選擇學習單元</h1><p>每次隨機完成10題，系統會即時批改、提供科學解析並記錄錯題。</p></div></div>
       {scienceUnitsLoading && <div className="unit-status">正在載入科學科單元…</div>}
       {scienceUnitsMessage && <div className="unit-status error-message">{scienceUnitsMessage}</div>}
-      {!scienceUnitsLoading && !scienceUnitsMessage && <div className="unit-grid">{scienceUnits.slice().sort((a, b) => Number(a.code.slice(3)) - Number(b.code.slice(3))).map((unit) => <button className="unit-card science-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "science")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{specialistLessons[unit.code] || unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "科學科"}</span><span>開始練習</span></div></button>)}</div>}
+      {!scienceUnitsLoading && !scienceUnitsMessage && <div className="unit-grid">
+        {scienceTopics.map(([code, title]) => {
+          const unit = scienceByCode.get(code);
+          return unit ? renderScienceCard(unit, title) : null;
+        })}
+      </div>}
+      {!scienceUnitsLoading && !scienceUnitsMessage && supplementaryUnits.length > 0 && <section className="mt-8" aria-labelledby="science-supplementary-heading">
+        <h2 id="science-supplementary-heading" className="mb-4 text-xl font-bold">延伸練習</h2>
+        <div className="unit-grid">{supplementaryUnits.map(unit => renderScienceCard(unit))}</div>
+      </section>}
       {!scienceUnitsLoading && !scienceUnitsMessage && scienceUnits.length === 0 && <div className="unit-status">目前尚未建立科學科單元。</div>}
     </section>
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
   </main>;
+  }
 
   const continueHomeLearning = () => {
     if (studentHomeStats.lastSubject === "中文") return openChinese();
