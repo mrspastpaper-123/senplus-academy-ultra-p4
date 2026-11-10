@@ -54,12 +54,20 @@ const scienceTopics = [
   ["4SC20","香港的氣候"],
 ] as const;
 
-const specialistLessons: Partial<Record<string, string>> = {
-  "4HS1": "漫遊香港",
-  "4HS3": "中國傳統文化、世界各地文化",
-  "4HS6": "古時的香港、香港開埠後、戰後的香港、今日香港社會",
-  "4HS8": "資訊科技的應用、資訊科技與溝通、認清傳媒、廣告的魔力",
-};
+const humanitiesTopics = [
+  ["4HS3", "中國傳統文化"],
+  ["4HS3", "世界各地文化"],
+  ["4HS8", "資訊科技的應用"],
+  ["4HS8", "資訊科技與溝通"],
+  ["4HS8", "認清傳媒"],
+  ["4HS8", "廣告的魔力"],
+  ["4HS9", "小小考察隊"],
+  ["4HS1", "漫遊香港"],
+  ["4HS6", "古時的香港"],
+  ["4HS6", "香港開埠後"],
+  ["4HS6", "戰後的香港"],
+  ["4HS6", "今日香港社會"],
+] as const;
 
 const subjects = [
   { name: "中文", note: "閱讀、語文與寫作", icon: BookOpen, colour: "coral" },
@@ -1902,18 +1910,41 @@ export default function Home() {
   </main>;
   }
 
-  if (view === "humanities") return <main className="dashboard-page learning-flow-v2 subject-humanities"><TwinkoGuide view={view} answerCorrect={feedback?.is_correct ?? null} />
+  if (view === "humanities") {
+    const humanitiesByCode = new Map(humanitiesUnits.map(unit => [unit.code, unit]));
+    const coreCodes = new Set<string>(humanitiesTopics.map(([code]) => code));
+    const supplementaryUnits = humanitiesUnits.filter(unit => !coreCodes.has(unit.code));
+    const renderHumanitiesCard = (unit: MathsUnit, title = unit.title_zh) => (
+      <button className="unit-card humanities-unit-card enabled" key={title} type="button"
+        onClick={() => startUnit(unit, "humanities")}>
+        <span className="unit-code">{unit.code}</span>
+        <h2>{title}</h2>
+        <p>{title === unit.title_zh ? unit.title_en : `對應題庫 · ${unit.title_zh}`}</p>
+        <div><span>{unit.curriculum_domains?.title_zh || "人文科"}</span><span>開始練習</span></div>
+      </button>
+    );
+    return <main className="dashboard-page learning-flow-v2 subject-humanities"><TwinkoGuide view={view} answerCorrect={feedback?.is_correct ?? null} />
     <header className="topbar"><div className="brand"><div className="brand-mark small">S+</div><div><strong>SENPlus+</strong><span>Academy Ultra · P4</span></div></div><div className="account"><span>{profile?.display_name || session.user.email}</span><button onClick={signOut}><LogOut size={17} />登出</button></div></header>
     <section className="dashboard-wrap units-wrap humanities-units">
       <button className="back-button" onClick={() => setView("subjects")}><ArrowLeft size={18} />返回科目</button>
       <div className="units-heading"><div className="subject-icon amber"><Sparkles size={25} /></div><div><p className="eyebrow">P4 人文科</p><h1>選擇學習單元</h1><p>每次隨機完成10題，系統會即時批改、提供解析並記錄錯題。</p></div></div>
       {humanitiesUnitsLoading && <div className="unit-status">正在載入人文科單元…</div>}
       {humanitiesUnitsMessage && <div className="unit-status error-message">{humanitiesUnitsMessage}</div>}
-      {!humanitiesUnitsLoading && !humanitiesUnitsMessage && <div className="unit-grid">{humanitiesUnits.map((unit) => <button className="unit-card humanities-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "humanities")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{specialistLessons[unit.code] || unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "人文科"}</span><span>開始練習</span></div></button>)}</div>}
+      {!humanitiesUnitsLoading && !humanitiesUnitsMessage && <div className="unit-grid">
+        {humanitiesTopics.map(([code, title]) => {
+          const unit = humanitiesByCode.get(code);
+          return unit ? renderHumanitiesCard(unit, title) : null;
+        })}
+      </div>}
+      {!humanitiesUnitsLoading && !humanitiesUnitsMessage && supplementaryUnits.length > 0 && <section className="mt-8" aria-labelledby="humanities-supplementary-heading">
+        <h2 id="humanities-supplementary-heading" className="mb-4 text-xl font-bold">延伸練習</h2>
+        <div className="unit-grid">{supplementaryUnits.map(unit => renderHumanitiesCard(unit))}</div>
+      </section>}
       {!humanitiesUnitsLoading && !humanitiesUnitsMessage && humanitiesUnits.length === 0 && <div className="unit-status">目前尚未建立人文科單元。</div>}
     </section>
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
   </main>;
+  }
 
   if (view === "science") {
     const scienceByCode = new Map(scienceUnits.map(unit => [unit.code, unit]));
