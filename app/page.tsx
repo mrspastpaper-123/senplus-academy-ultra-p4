@@ -1866,7 +1866,7 @@ export default function Home() {
       <div className="units-heading"><div className="subject-icon green"><Microscope size={25} /></div><div><p className="eyebrow">P4 科學科</p><h1>選擇學習單元</h1><p>每次隨機完成10題，系統會即時批改、提供科學解析並記錄錯題。</p></div></div>
       {scienceUnitsLoading && <div className="unit-status">正在載入9個科學科單元…</div>}
       {scienceUnitsMessage && <div className="unit-status error-message">{scienceUnitsMessage}</div>}
-      {!scienceUnitsLoading && !scienceUnitsMessage && <div className="unit-grid">{scienceUnits.filter((unit) => /^4SC(?:[1-9])$/.test(unit.code)).map((unit) => <button className="unit-card science-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "science")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "科學科"}</span><span>開始練習</span></div></button>)}</div>}
+      {!scienceUnitsLoading && !scienceUnitsMessage && <div className="unit-grid">{scienceUnits.slice().sort((a, b) => Number(a.code.slice(3)) - Number(b.code.slice(3))).map((unit) => <button className="unit-card science-unit-card enabled" key={unit.id} type="button" onClick={() => startUnit(unit, "science")}><span className="unit-code">{unit.code}</span><h2>{unit.title_zh}</h2><p>{unit.title_en}</p><div><span>{unit.curriculum_domains?.title_zh || "科學科"}</span><span>開始練習</span></div></button>)}</div>}
       {!scienceUnitsLoading && !scienceUnitsMessage && scienceUnits.length === 0 && <div className="unit-status">目前尚未建立科學科單元。</div>}
     </section>
     <button className="feedback-fab" onClick={openFeedback}><MessageSquareText size={19} />回報問題</button>
