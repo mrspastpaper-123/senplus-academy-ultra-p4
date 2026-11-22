@@ -190,6 +190,118 @@ function humanitiesWorkbookReference(unitCode: string | undefined, questionId: n
   return `P4-HUM-${unitCode.slice(-2)}-${String(questionId - firstId + 1).padStart(3, "0")}`;
 }
 
+// ID ranges matched to the English workbook by unit, question order and prompt.
+const englishWorkbookQuestionRanges: ReadonlyArray<readonly [number, number, string, number]> = [
+  [46520,46569,"P4-A01-",46519],
+  [46570,46574,"P4-A02-",46569],
+  [46576,46594,"P4-A02-",46569],
+  [46596,46602,"P4-A02-",46569],
+  [46604,46611,"P4-A02-",46569],
+  [46613,46619,"P4-A02-",46569],
+  [46620,46620,"P4-A03-",46619],
+  [46622,46651,"P4-A03-",46619],
+  [46655,46655,"P4-A03-",46619],
+  [46658,46669,"P4-A03-",46619],
+  [46670,46693,"P4-A04-",46669],
+  [46696,46697,"P4-A04-",46669],
+  [46699,46719,"P4-A04-",46669],
+  [46720,46735,"P4-A05-",46719],
+  [46737,46749,"P4-A05-",46719],
+  [46752,46752,"P4-A05-",46719],
+  [46755,46755,"P4-A05-",46719],
+  [46757,46757,"P4-A05-",46719],
+  [46760,46769,"P4-A05-",46719],
+  [46770,46774,"P4-A06-",46769],
+  [46776,46782,"P4-A06-",46769],
+  [46784,46815,"P4-A06-",46769],
+  [46817,46819,"P4-A06-",46769],
+  [46820,46828,"P4-A07-",46819],
+  [46830,46869,"P4-A07-",46819],
+  [46870,46919,"P4-A08-",46869],
+  [46920,46931,"P4-A09-",46919],
+  [46933,46969,"P4-A09-",46919],
+  [46970,46985,"P4-A10-",46969],
+  [46987,47017,"P4-A10-",46969],
+  [47019,47019,"P4-A10-",46969],
+  [47020,47064,"P4-A11-",47019],
+  [47066,47068,"P4-A11-",47019],
+  [47070,47119,"P4-A12-",47069],
+  [47120,47126,"P4-B01-",47119],
+  [47129,47139,"P4-B01-",47119],
+  [47142,47142,"P4-B01-",47119],
+  [47144,47144,"P4-B01-",47119],
+  [47147,47147,"P4-B01-",47119],
+  [47149,47168,"P4-B01-",47119],
+  [47170,47179,"P4-B02-",47169],
+  [47183,47184,"P4-B02-",47169],
+  [47187,47187,"P4-B02-",47169],
+  [47189,47219,"P4-B02-",47169],
+  [47220,47226,"P4-B03-",47219],
+  [47228,47269,"P4-B03-",47219],
+  [47270,47319,"P4-B04-",47269],
+  [47320,47369,"P4-B05-",47319],
+  [47370,47419,"P4-B06-",47369],
+  [47420,47431,"P4-B07-",47419],
+  [47433,47469,"P4-B07-",47419],
+  [47470,47493,"P4-B08-",47469],
+  [47495,47495,"P4-B08-",47469],
+  [47497,47509,"P4-B08-",47469],
+  [47511,47515,"P4-B08-",47469],
+  [47518,47519,"P4-B08-",47469],
+  [47520,47526,"P4-B09-",47519],
+  [47528,47529,"P4-B09-",47519],
+  [47540,47540,"P4-B09-",47519],
+  [47542,47542,"P4-B09-",47519],
+  [47545,47547,"P4-B09-",47519],
+  [47550,47557,"P4-B09-",47519],
+  [47559,47563,"P4-B09-",47519],
+  [47565,47569,"P4-B09-",47519],
+  [47570,47581,"P4-B10-",47569],
+  [47584,47586,"P4-B10-",47569],
+  [47588,47588,"P4-B10-",47569],
+  [47590,47611,"P4-B10-",47569],
+  [47613,47619,"P4-B10-",47569],
+  [47620,47653,"P4-B11-",47619],
+  [47656,47661,"P4-B11-",47619],
+  [47663,47669,"P4-B11-",47619],
+  [47670,47679,"P4-R01-1-",47669],
+  [47680,47689,"P4-R01-2-",47679],
+  [47690,47690,"P4-R02-1-",47689],
+  [47692,47699,"P4-R02-1-",47689],
+  [47701,47709,"P4-R02-2-",47699],
+  [47710,47719,"P4-R03-1-",47709],
+  [47720,47728,"P4-R03-2-",47719],
+  [47730,47739,"P4-R04-1-",47729],
+  [47740,47749,"P4-R04-2-",47739],
+  [47750,47754,"P4-R05-1-",47749],
+  [47756,47759,"P4-R05-1-",47749],
+  [47760,47769,"P4-R05-2-",47759],
+  [47770,47779,"P4-R06-1-",47769],
+  [47780,47786,"P4-R06-2-",47779],
+  [47788,47789,"P4-R06-2-",47779],
+  [47790,47799,"P4-R07-1-",47789],
+  [47800,47809,"P4-R07-2-",47799],
+  [47810,47819,"P4-R08-1-",47809],
+  [47820,47829,"P4-R08-2-",47819],
+  [47830,47835,"P4-R09-1-",47829],
+  [47837,47839,"P4-R09-1-",47829],
+  [47840,47849,"P4-R09-2-",47839],
+  [47850,47851,"P4-R10-1-",47849],
+  [47853,47858,"P4-R10-1-",47849],
+  [47860,47869,"P4-R10-2-",47859],
+  [47870,47879,"P4-R11-1-",47869],
+  [47880,47888,"P4-R11-2-",47879],
+  [47890,47899,"P4-R12-1-",47889],
+  [47900,47909,"P4-R12-2-",47899],
+];
+
+function englishQuestionIdLabel(questionId: number) {
+  const match = englishWorkbookQuestionRanges.find(([first, last]) => questionId >= first && questionId <= last);
+  if (!match) return `平台題目 ID ${questionId}`;
+  const [, , prefix, offset] = match;
+  return `題目 ID ${prefix}${String(questionId - offset).padStart(3, "0")}`;
+}
+
 function renderMarkedText(value: string) {
   return cleanLearningText(value).split(/((?:[^\u0332]\u0332)+)/g).filter(Boolean).map((part, index) =>
     part.includes("\u0332")
@@ -1758,7 +1870,7 @@ export default function Home() {
         </div>
         <div className="reading-pairs">{readingGroups.map((group) => <section className="reading-pair" key={group.passage}>
           <article className="reading-passage"><span>{activeSubject === "english" ? "Complete Passage" : "完整文章"}</span><div>{renderMarkedText(group.passage)}</div></article>
-          <section className="reading-question-group"><div className="reading-question-group-title"><span>{activeSubject === "english" ? "Questions 1–10" : "第1至10題"}</span><strong>{group.questions.length} 題</strong></div><div className="reading-question-list">{group.questions.map(({ question, prompt }, questionIndex) => { const options = optionsForQuestion(question); const questionNumber = questions.findIndex((item) => item.id === question.id) + 1; return <section className="reading-question" key={question.id}><div className="question-meta"><span>第 {questionNumber || questionIndex + 1} 題</span><span>四選一</span></div><h3>{renderMarkedText(stripQuestionMetadata(prompt))}</h3><div className="option-list">{options.map((option) => <label className={`option ${readingAnswers[question.id] === option.id ? "selected" : ""}`} key={option.id}><input type="radio" name={`answer-${question.id}`} value={option.id} checked={readingAnswers[question.id] === option.id} disabled={readingSubmitted.includes(question.id) || practiceLoading} onChange={() => setReadingAnswers((answers) => ({ ...answers, [question.id]: option.id }))} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>{activeSubject === "english" && readingFeedback[question.id] && <div className="feedback" style={{ marginTop: 16 }}><strong style={{ color: readingFeedback[question.id].is_correct ? "#18794e" : "#b42318" }}>{readingFeedback[question.id].is_correct ? "✓ 答對了" : "✗ 答錯了"}</strong><p>你的答案：{options.find(option => option.id === readingAnswers[question.id])?.label} · {renderMarkedText(options.find(option => option.id === readingAnswers[question.id])?.text || "")}</p><p>正確答案：{options.find(option => option.id === readingFeedback[question.id].correct_answer)?.label} · {renderMarkedText(options.find(option => option.id === readingFeedback[question.id].correct_answer)?.text || "")}</p>{readingFeedback[question.id].explanation && <p>解題分析：{renderMarkedText(readingFeedback[question.id].explanation || "")}</p>}</div>}</section>; })}</div></section>
+          <section className="reading-question-group"><div className="reading-question-group-title"><span>{activeSubject === "english" ? "Questions 1–10" : "第1至10題"}</span><strong>{group.questions.length} 題</strong></div><div className="reading-question-list">{group.questions.map(({ question, prompt }, questionIndex) => { const options = optionsForQuestion(question); const questionNumber = questions.findIndex((item) => item.id === question.id) + 1; return <section className="reading-question" key={question.id}><div className="question-meta"><span>第 {questionNumber || questionIndex + 1} 題{activeSubject === "english" && <> · {englishQuestionIdLabel(question.id)}</>}</span><span>四選一</span></div><h3>{renderMarkedText(stripQuestionMetadata(prompt))}</h3><div className="option-list">{options.map((option) => <label className={`option ${readingAnswers[question.id] === option.id ? "selected" : ""}`} key={option.id}><input type="radio" name={`answer-${question.id}`} value={option.id} checked={readingAnswers[question.id] === option.id} disabled={readingSubmitted.includes(question.id) || practiceLoading} onChange={() => setReadingAnswers((answers) => ({ ...answers, [question.id]: option.id }))} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>{activeSubject === "english" && readingFeedback[question.id] && <div className="feedback" style={{ marginTop: 16 }}><strong style={{ color: readingFeedback[question.id].is_correct ? "#18794e" : "#b42318" }}>{readingFeedback[question.id].is_correct ? "✓ 答對了" : "✗ 答錯了"}</strong><p>你的答案：{options.find(option => option.id === readingAnswers[question.id])?.label} · {renderMarkedText(options.find(option => option.id === readingAnswers[question.id])?.text || "")}</p><p>正確答案：{options.find(option => option.id === readingFeedback[question.id].correct_answer)?.label} · {renderMarkedText(options.find(option => option.id === readingFeedback[question.id].correct_answer)?.text || "")}</p>{readingFeedback[question.id].explanation && <p>解題分析：{renderMarkedText(readingFeedback[question.id].explanation || "")}</p>}</div>}</section>; })}</div></section>
         </section>)}</div>
         <div className="reading-submit-bar">{activeSubject === "english" && completedResult ? <><span>批改完成，請查看所有答案及解題分析。</span><button className="submit-answer" onClick={() => { setView("complete"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>完成練習</button></> : <><span>{questions.every((question) => readingAnswers[question.id]) ? "已完成所有題目，可以提交。" : `尚有 ${questions.filter((question) => !readingAnswers[question.id]).length} 題未作答`}</span><button className="submit-answer" disabled={questions.some((question) => !readingAnswers[question.id]) || practiceLoading} onClick={submitReadingAnswers}>{practiceLoading ? "正在批改…" : "提交全部答案"}</button></>}</div>
       </section>}
@@ -1767,7 +1879,7 @@ export default function Home() {
         <div className="writing-guidance"><strong>寫作提示</strong><div>{writingPrompt.guidance.map((item) => <span key={item}>{item}</span>)}</div></div>
         {!writingResult ? <><textarea className="writing-editor" value={writingContent} onChange={(event) => setWritingContent(event.target.value)} placeholder="在這裏輸入作文……&#10;&#10;建議按內容分段，完成後再檢查錯別字和標點。" rows={18} disabled={practiceLoading} /><div className="writing-actions"><span>{writingCharCount < 50 ? `最少還需 ${50 - writingCharCount} 字才可提交` : "可以提交；系統會儲存全文並按四項準則評改。"}</span><button className="submit-answer" disabled={writingCharCount < 50 || practiceLoading} onClick={submitWritingTask}>{practiceLoading ? "正在儲存及評改…" : "提交作文"}</button></div></> : <div className="writing-result"><div className="writing-score"><span>自動評改</span><strong>{writingResult.score}<small>／100</small></strong><p>{writingResult.char_count} 字 · 作文已儲存</p></div><div className="writing-rubric">{Object.entries(writingResult.rubric).map(([name, score]) => <div key={name}><span>{name}</span><strong>{score}</strong></div>)}</div><div className="writing-feedback"><Lightbulb size={20} /><div><strong>改善建議</strong><p>{writingResult.feedback}</p><small>這是按篇幅、段落、標點和題目重點作出的初步評估；老師評語及分數會以人工評閱為準。</small></div></div><button className="retry-button" onClick={() => startWritingTask(activeUnit!)}><RotateCcw size={18} />抽選另一題</button></div>}
       </section>}
-      {!isReadingUnit && !isWritingUnit && currentQuestion && <section className="question-card"><div className="practice-progress"><span style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} /></div><div className="question-meta"><span>第 {currentIndex + 1} 題／共 {questions.length} 題{humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id) && <> · 題目 ID {humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id)}</>}</span><span>四選一</span></div><h2 style={activeUnit?.code.startsWith("4HN") ? { whiteSpace: "pre-line" } : undefined}>{renderMarkedText(stripQuestionMetadata(currentQuestion.question_text))}</h2><QuestionTopicCard text={currentQuestion.question_text} /><QuestionBarChart text={currentQuestion.question_text} unitCode={activeUnit?.code || ""} /><div className="option-list">{displayedOptions.map((option) => <label className={`option ${selectedAnswer === option.id ? "selected" : ""} ${feedback ? "locked" : ""}`} key={option.id}><input type="radio" name="answer" value={option.id} checked={selectedAnswer === option.id} disabled={!!feedback} onChange={() => setSelectedAnswer(option.id)} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>
+      {!isReadingUnit && !isWritingUnit && currentQuestion && <section className="question-card"><div className="practice-progress"><span style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} /></div><div className="question-meta"><span>第 {currentIndex + 1} 題／共 {questions.length} 題{activeSubject === "english" && <> · {englishQuestionIdLabel(currentQuestion.id)}</>}{humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id) && <> · 題目 ID {humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id)}</>}</span><span>四選一</span></div><h2 style={activeUnit?.code.startsWith("4HN") ? { whiteSpace: "pre-line" } : undefined}>{renderMarkedText(stripQuestionMetadata(currentQuestion.question_text))}</h2><QuestionTopicCard text={currentQuestion.question_text} /><QuestionBarChart text={currentQuestion.question_text} unitCode={activeUnit?.code || ""} /><div className="option-list">{displayedOptions.map((option) => <label className={`option ${selectedAnswer === option.id ? "selected" : ""} ${feedback ? "locked" : ""}`} key={option.id}><input type="radio" name="answer" value={option.id} checked={selectedAnswer === option.id} disabled={!!feedback} onChange={() => setSelectedAnswer(option.id)} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>
         {!feedback && <button className="submit-answer" disabled={!selectedAnswer || practiceLoading} onClick={submitAnswer}>{practiceLoading ? "批改中…" : "提交答案"}</button>}
         {feedback && <div className={`feedback ${feedback.is_correct ? "correct" : "incorrect"}`}><h3>{feedback.is_correct ? "答對了！" : "答案不正確"}</h3><p>正確答案：{displayedOptions.find((option) => option.id === feedback.correct_answer)?.label} · {renderMarkedText(displayedOptions.find((option) => option.id === feedback.correct_answer)?.text || "")}</p>{feedback.explanation && <p>{renderMarkedText(feedback.explanation)}</p>}<button className="next-question" onClick={nextQuestion}>{feedback.completed ? "查看成績" : "下一題"}</button></div>}
       </section>}
