@@ -1122,7 +1122,7 @@ export default function Home() {
       setHumanitiesUnitsMessage("未能載入人文科單元，請稍後再試。");
     } else {
       const domainMap = new Map(domains.map((domain) => [domain.id, { title_zh: domain.name_zh, code: domain.code }]));
-      setHumanitiesUnits((data || []).filter((unit) => /^4HS(?:[1-9]|1\d)$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
+      setHumanitiesUnits((data || []).filter((unit) => /^4(?:HS(?:[1-9]|1\d)|HN(?:0[1-9]|1[0-6]))$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
     }
     setHumanitiesUnitsLoading(false);
   }
@@ -1719,7 +1719,7 @@ export default function Home() {
     <header className="topbar"><div className="brand"><div className="brand-mark small">S+</div><div><strong>SENPlus+</strong><span>Academy Ultra · P4</span></div></div><div className="account"><span>{profile?.display_name || session.user.email}</span><button onClick={signOut}><LogOut size={17} />登出</button></div></header>
     <section className="dashboard-wrap practice-wrap">
       <button className="back-button" onClick={() => setView(practiceReturnView)}><ArrowLeft size={18} />返回{practiceReturnView === "generalStudies" ? "常識科" : activeSubject === "chinese" ? "中文" : activeSubject === "english" ? "英文" : activeSubject === "humanities" ? "人文科" : activeSubject === "science" ? "科學科" : "數學"}單位</button>
-      <div className="practice-heading"><span className="unit-code">{activeUnit?.code}</span><p>P4 {practiceReturnView === "generalStudies" ? "常識科" : activeSubject === "chinese" ? "中文" : activeSubject === "english" ? "英文" : activeSubject === "humanities" ? "人文科" : activeSubject === "science" ? "科學科" : "數學"} · {activeUnit?.curriculum_domains?.title_zh}</p><h1>{activeUnit?.title_zh}</h1></div>
+      <div className="practice-heading"><span className="unit-code">{activeUnit?.code}</span><p>P4 {practiceReturnView === "generalStudies" ? "常識科" : activeSubject === "chinese" ? "中文" : activeSubject === "english" ? "英文" : activeSubject === "humanities" ? "人文科" : activeSubject === "science" ? "科學科" : "數學"} · {activeUnit?.curriculum_domains?.title_zh}</p><h1>{activeUnit ? renderMarkedText(activeUnit.title_zh) : null}</h1></div>
       {practiceLoading && !currentQuestion && <div className="unit-status">正在建立10題練習…</div>}
       {practiceMessage && <div className="unit-status error-message">{practiceMessage}</div>}
       {isReadingUnit && questions.length > 0 && <section className="reading-paper">
@@ -1740,7 +1740,7 @@ export default function Home() {
         <div className="writing-guidance"><strong>寫作提示</strong><div>{writingPrompt.guidance.map((item) => <span key={item}>{item}</span>)}</div></div>
         {!writingResult ? <><textarea className="writing-editor" value={writingContent} onChange={(event) => setWritingContent(event.target.value)} placeholder="在這裏輸入作文……&#10;&#10;建議按內容分段，完成後再檢查錯別字和標點。" rows={18} disabled={practiceLoading} /><div className="writing-actions"><span>{writingCharCount < 50 ? `最少還需 ${50 - writingCharCount} 字才可提交` : "可以提交；系統會儲存全文並按四項準則評改。"}</span><button className="submit-answer" disabled={writingCharCount < 50 || practiceLoading} onClick={submitWritingTask}>{practiceLoading ? "正在儲存及評改…" : "提交作文"}</button></div></> : <div className="writing-result"><div className="writing-score"><span>自動評改</span><strong>{writingResult.score}<small>／100</small></strong><p>{writingResult.char_count} 字 · 作文已儲存</p></div><div className="writing-rubric">{Object.entries(writingResult.rubric).map(([name, score]) => <div key={name}><span>{name}</span><strong>{score}</strong></div>)}</div><div className="writing-feedback"><Lightbulb size={20} /><div><strong>改善建議</strong><p>{writingResult.feedback}</p><small>這是按篇幅、段落、標點和題目重點作出的初步評估；老師評語及分數會以人工評閱為準。</small></div></div><button className="retry-button" onClick={() => startWritingTask(activeUnit!)}><RotateCcw size={18} />抽選另一題</button></div>}
       </section>}
-      {!isReadingUnit && !isWritingUnit && currentQuestion && <section className="question-card"><div className="practice-progress"><span style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} /></div><div className="question-meta"><span>第 {currentIndex + 1} 題／共 {questions.length} 題</span><span>四選一</span></div><h2>{renderMarkedText(stripQuestionMetadata(currentQuestion.question_text))}</h2><QuestionTopicCard text={currentQuestion.question_text} /><QuestionBarChart text={currentQuestion.question_text} unitCode={activeUnit?.code || ""} /><div className="option-list">{displayedOptions.map((option) => <label className={`option ${selectedAnswer === option.id ? "selected" : ""} ${feedback ? "locked" : ""}`} key={option.id}><input type="radio" name="answer" value={option.id} checked={selectedAnswer === option.id} disabled={!!feedback} onChange={() => setSelectedAnswer(option.id)} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>
+      {!isReadingUnit && !isWritingUnit && currentQuestion && <section className="question-card"><div className="practice-progress"><span style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} /></div><div className="question-meta"><span>第 {currentIndex + 1} 題／共 {questions.length} 題</span><span>四選一</span></div><h2 style={activeUnit?.code.startsWith("4HN") ? { whiteSpace: "pre-line" } : undefined}>{renderMarkedText(stripQuestionMetadata(currentQuestion.question_text))}</h2><QuestionTopicCard text={currentQuestion.question_text} /><QuestionBarChart text={currentQuestion.question_text} unitCode={activeUnit?.code || ""} /><div className="option-list">{displayedOptions.map((option) => <label className={`option ${selectedAnswer === option.id ? "selected" : ""} ${feedback ? "locked" : ""}`} key={option.id}><input type="radio" name="answer" value={option.id} checked={selectedAnswer === option.id} disabled={!!feedback} onChange={() => setSelectedAnswer(option.id)} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>
         {!feedback && <button className="submit-answer" disabled={!selectedAnswer || practiceLoading} onClick={submitAnswer}>{practiceLoading ? "批改中…" : "提交答案"}</button>}
         {feedback && <div className={`feedback ${feedback.is_correct ? "correct" : "incorrect"}`}><h3>{feedback.is_correct ? "答對了！" : "答案不正確"}</h3><p>正確答案：{displayedOptions.find((option) => option.id === feedback.correct_answer)?.label} · {renderMarkedText(displayedOptions.find((option) => option.id === feedback.correct_answer)?.text || "")}</p>{feedback.explanation && <p>{renderMarkedText(feedback.explanation)}</p>}<button className="next-question" onClick={nextQuestion}>{feedback.completed ? "查看成績" : "下一題"}</button></div>}
       </section>}
@@ -1826,11 +1826,12 @@ export default function Home() {
 
   if (view === "humanities") {
     const humanitiesByCode = new Map(humanitiesUnits.map(unit => [unit.code, unit]));
+    const rebuiltHumanitiesUnits = humanitiesUnits.filter(unit => /^4HN(?:0[1-9]|1[0-6])$/.test(unit.code));
     const renderHumanitiesCard = (unit: MathsUnit, title = unit.title_zh) => (
       <button className="unit-card humanities-unit-card enabled" key={title} type="button"
         onClick={() => startUnit(unit, "humanities")}>
         <span className="unit-code">{unit.code}</span>
-        <h2>{title}</h2>
+        <h2>{renderMarkedText(title)}</h2>
         <p>{title === unit.title_zh ? unit.title_en : `對應題庫 · ${unit.title_zh}`}</p>
         <div><span>{unit.curriculum_domains?.title_zh || "人文科"}</span><span>開始練習</span></div>
       </button>
@@ -1843,7 +1844,7 @@ export default function Home() {
       {humanitiesUnitsLoading && <div className="unit-status">正在載入人文科單元…</div>}
       {humanitiesUnitsMessage && <div className="unit-status error-message">{humanitiesUnitsMessage}</div>}
       {!humanitiesUnitsLoading && !humanitiesUnitsMessage && <div className="unit-grid">
-        {humanitiesTopics.map(([code, title]) => {
+        {rebuiltHumanitiesUnits.length === 16 ? rebuiltHumanitiesUnits.map(unit => renderHumanitiesCard(unit)) : humanitiesTopics.map(([code, title]) => {
           const unit = humanitiesByCode.get(code);
           return unit ? renderHumanitiesCard(unit, title) : null;
         })}
