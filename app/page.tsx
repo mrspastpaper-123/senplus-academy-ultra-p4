@@ -183,6 +183,33 @@ const humanitiesWorkbookFirstIds: Record<string, number> = {
   "4HN16": 52870,
 };
 
+const scienceWorkbookFirstIds: Record<string, number> = {
+  "4SCI01": 56150,
+  "4SCI02": 56230,
+  "4SCI03": 56310,
+  "4SCI04": 56390,
+  "4SCI05": 56470,
+  "4SCI06": 56550,
+  "4SCI07": 56630,
+  "4SCI08": 56710,
+  "4SCI09": 56790,
+  "4SCI10": 56870,
+  "4SCI11": 56950,
+  "4SCI12": 57030,
+  "4SCI13": 57110,
+  "4SCI14": 57190,
+  "4SCI15": 57270,
+  "4SCI16": 57350,
+  "4SCI17": 57430,
+};
+
+function scienceWorkbookReference(unitCode: string | undefined, questionId: number) {
+  if (!unitCode) return null;
+  const firstId = scienceWorkbookFirstIds[unitCode];
+  if (firstId === undefined || questionId < firstId || questionId >= firstId + 80) return null;
+  return `P4-SCI-${unitCode.slice(-2)}-${String(questionId - firstId + 1).padStart(3, "0")}`;
+}
+
 function humanitiesWorkbookReference(unitCode: string | undefined, questionId: number) {
   if (!unitCode) return null;
   const firstId = humanitiesWorkbookFirstIds[unitCode];
@@ -1225,7 +1252,7 @@ export default function Home() {
       setScienceUnitsMessage("未能載入科學科單元，請稍後再試。");
     } else {
       const domainMap = new Map(domains.map((domain) => [domain.id, { title_zh: domain.name_zh, code: domain.code }]));
-      setScienceUnits((data || []).filter((unit) => /^4SC(?:[1-9]|1\d|20)$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
+      setScienceUnits((data || []).filter((unit) => /^4SC(?:[1-9]|1\d|20)$/.test(unit.code) || /^4SCI(?:0[1-9]|1[0-7])$/.test(unit.code)).map((unit) => ({ ...unit, curriculum_domains: domainMap.get(unit.domain_id) || null })) as MathsUnit[]);
     }
     setScienceUnitsLoading(false);
   }
@@ -1825,7 +1852,7 @@ export default function Home() {
         <div className="writing-guidance"><strong>寫作提示</strong><div>{writingPrompt.guidance.map((item) => <span key={item}>{item}</span>)}</div></div>
         {!writingResult ? <><textarea className="writing-editor" value={writingContent} onChange={(event) => setWritingContent(event.target.value)} placeholder="在這裏輸入作文……&#10;&#10;建議按內容分段，完成後再檢查錯別字和標點。" rows={18} disabled={practiceLoading} /><div className="writing-actions"><span>{writingCharCount < 50 ? `最少還需 ${50 - writingCharCount} 字才可提交` : "可以提交；系統會儲存全文並按四項準則評改。"}</span><button className="submit-answer" disabled={writingCharCount < 50 || practiceLoading} onClick={submitWritingTask}>{practiceLoading ? "正在儲存及評改…" : "提交作文"}</button></div></> : <div className="writing-result"><div className="writing-score"><span>自動評改</span><strong>{writingResult.score}<small>／100</small></strong><p>{writingResult.char_count} 字 · 作文已儲存</p></div><div className="writing-rubric">{Object.entries(writingResult.rubric).map(([name, score]) => <div key={name}><span>{name}</span><strong>{score}</strong></div>)}</div><div className="writing-feedback"><Lightbulb size={20} /><div><strong>改善建議</strong><p>{writingResult.feedback}</p><small>這是按篇幅、段落、標點和題目重點作出的初步評估；老師評語及分數會以人工評閱為準。</small></div></div><button className="retry-button" onClick={() => startWritingTask(activeUnit!)}><RotateCcw size={18} />抽選另一題</button></div>}
       </section>}
-      {!isReadingUnit && !isWritingUnit && currentQuestion && <section className="question-card"><div className="practice-progress"><span style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} /></div><div className="question-meta"><span>第 {currentIndex + 1} 題／共 {questions.length} 題{activeSubject === "english" && <> · {englishQuestionIdLabel(currentQuestion.id)}</>}{humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id) && <> · 題目 ID {humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id)}</>}</span><span>四選一</span></div><h2 style={activeUnit?.code.startsWith("4HN") ? { whiteSpace: "pre-line" } : undefined}>{renderMarkedText(stripQuestionMetadata(currentQuestion.question_text))}</h2><QuestionTopicCard text={currentQuestion.question_text} /><QuestionBarChart text={currentQuestion.question_text} unitCode={activeUnit?.code || ""} /><div className="option-list">{displayedOptions.map((option) => <label className={`option ${selectedAnswer === option.id ? "selected" : ""} ${feedback ? "locked" : ""}`} key={option.id}><input type="radio" name="answer" value={option.id} checked={selectedAnswer === option.id} disabled={!!feedback} onChange={() => setSelectedAnswer(option.id)} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>
+      {!isReadingUnit && !isWritingUnit && currentQuestion && <section className="question-card"><div className="practice-progress"><span style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }} /></div><div className="question-meta"><span>第 {currentIndex + 1} 題／共 {questions.length} 題{activeSubject === "english" && <> · {englishQuestionIdLabel(currentQuestion.id)}</>}{humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id) && <> · 題目 ID {humanitiesWorkbookReference(activeUnit?.code, currentQuestion.id)}</>}{scienceWorkbookReference(activeUnit?.code, currentQuestion.id) && <> · 題目 ID {scienceWorkbookReference(activeUnit?.code, currentQuestion.id)}</>}</span><span>四選一</span></div><h2 style={activeUnit?.code.startsWith("4HN") ? { whiteSpace: "pre-line" } : undefined}>{renderMarkedText(stripQuestionMetadata(currentQuestion.question_text))}</h2><QuestionTopicCard text={currentQuestion.question_text} /><QuestionBarChart text={currentQuestion.question_text} unitCode={activeUnit?.code || ""} /><div className="option-list">{displayedOptions.map((option) => <label className={`option ${selectedAnswer === option.id ? "selected" : ""} ${feedback ? "locked" : ""}`} key={option.id}><input type="radio" name="answer" value={option.id} checked={selectedAnswer === option.id} disabled={!!feedback} onChange={() => setSelectedAnswer(option.id)} /><strong>{option.label}</strong><span>{renderMarkedText(option.text)}</span></label>)}</div>
         {!feedback && <button className="submit-answer" disabled={!selectedAnswer || practiceLoading} onClick={submitAnswer}>{practiceLoading ? "批改中…" : "提交答案"}</button>}
         {feedback && <div className={`feedback ${feedback.is_correct ? "correct" : "incorrect"}`}><h3>{feedback.is_correct ? "答對了！" : "答案不正確"}</h3><p>正確答案：{displayedOptions.find((option) => option.id === feedback.correct_answer)?.label} · {renderMarkedText(displayedOptions.find((option) => option.id === feedback.correct_answer)?.text || "")}</p>{feedback.explanation && <p>{renderMarkedText(feedback.explanation)}</p>}<button className="next-question" onClick={nextQuestion}>{feedback.completed ? "查看成績" : "下一題"}</button></div>}
       </section>}
@@ -1942,6 +1969,7 @@ export default function Home() {
 
   if (view === "science") {
     const scienceByCode = new Map(scienceUnits.map(unit => [unit.code, unit]));
+    const rebuiltScienceUnits = scienceUnits.filter(unit => /^4SCI(?:0[1-9]|1[0-7])$/.test(unit.code));
     const renderScienceCard = (unit: MathsUnit, title = unit.title_zh) => (
       <button className="unit-card science-unit-card enabled" key={unit.id} type="button"
         onClick={() => startUnit({ ...unit, title_zh: title }, "science")}>
@@ -1959,7 +1987,7 @@ export default function Home() {
       {scienceUnitsLoading && <div className="unit-status">正在載入科學科單元…</div>}
       {scienceUnitsMessage && <div className="unit-status error-message">{scienceUnitsMessage}</div>}
       {!scienceUnitsLoading && !scienceUnitsMessage && <div className="unit-grid">
-        {scienceTopics.map(([code, title]) => {
+        {rebuiltScienceUnits.length === 17 ? rebuiltScienceUnits.map(unit => renderScienceCard(unit)) : scienceTopics.map(([code, title]) => {
           const unit = scienceByCode.get(code);
           return unit ? renderScienceCard(unit, title) : null;
         })}
